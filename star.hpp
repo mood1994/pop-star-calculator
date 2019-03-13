@@ -32,4 +32,8 @@ class star {
   int _block_id;
 };
 
+void init_stars(star stars[STAR_COUNT]);
+
+int read_stars_from_file(int argc, char **argv, star stars[STAR_COUNT]);
+
 #endif // STAR_HPP

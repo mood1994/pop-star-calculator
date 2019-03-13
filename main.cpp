@@ -1,6 +1,4 @@
 #include <iostream>
-#include <stdlib.h>
-#include <time.h>
 #include <vector>
 #include <assert.h>
 
@@ -20,22 +18,15 @@ int calc_reward_score(uint left_count) {
   return MAX_REWARD_SCORE - left_count * 5;
 }
 
-int main(int argc, char **argv) {
-  star stars[STAR_COUNT];
-  srand((unsigned)time(NULL));
-  for (int i = 0; i < STAR_COUNT; ++i) {
-    int rand_type = rand() % STAR_TYPE_COUNT;
-    stars[i].set_type(rand_type);
-    stars[i].set_id(i);
-  }
-
-  star* star_matrix[WIDTH][LENGTH];
+void init_star_matrix(star stars[STAR_COUNT], star *star_matrix[WIDTH][LENGTH]) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       star_matrix[x][y] = &stars[x + y * WIDTH];
     }
   }
+}
 
+void print_star_matrix(star *star_matrix[WIDTH][LENGTH]) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       cout << star_matrix[x][y]->type();
@@ -43,12 +34,29 @@ int main(int argc, char **argv) {
     cout << endl;
   }
   cout << endl;
+}
+
+int main(int argc, char **argv) {
+  star stars[STAR_COUNT];
+  star *star_matrix[WIDTH][LENGTH];
+  
+  if (argc > 1) {
+    if (read_stars_from_file(argc, argv, stars)) {
+      cerr << "Fail to read stars" << endl;
+      return 1;
+    }
+  } else {
+    init_stars(stars);
+  }
+  init_star_matrix(stars, star_matrix);
+
+  print_star_matrix(star_matrix);
 
   vector<block> blocks;
   init_blocks(star_matrix, blocks);
   for (int i = 0; i < blocks.size(); ++i) {
     blocks[i].print();
   }
-  
+
   return 0;
 }
