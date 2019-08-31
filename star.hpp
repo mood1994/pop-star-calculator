@@ -6,6 +6,18 @@
 
 class Star {
  public:
+  static void init_stars(Star stars[STAR_COUNT]);
+
+  static int read_stars_from_file(int argc, 
+                                  char **argv, 
+                                  Star stars[STAR_COUNT]);
+  
+  static void init_star_matrix(Star stars[STAR_COUNT], 
+                               Star *star_matrix[WIDTH][LENGTH]);
+
+  static void print_star_matrix(Star *star_matrix[WIDTH][LENGTH]);
+
+ public:
   Star() {
     _block_id = INVALID_BLOCK_ID;
   }
@@ -22,13 +34,9 @@ class Star {
 
   void set_block_id(int block_id) { _block_id = block_id; }
 
-  void print() {
+  void print() const {
     std::cout << "{ id: " << _id << ", type: " << _type << " }" << std::endl;
   }
-
-  static void init_stars(Star stars[STAR_COUNT]);
-
-  static int read_stars_from_file(int argc, char **argv, Star stars[STAR_COUNT]);
 
  private:
   int _type;

@@ -8,7 +8,11 @@
 
 class Block {
  public:
-  int id() { return _id; }
+  static void init_blocks(Star* star_matrix[WIDTH][LENGTH], 
+                          std::vector<Block> &blocks);
+
+ public:
+  int id() const { return _id; }
 
   void set_id(int id) { _id = id; }
 
@@ -16,15 +20,12 @@ class Block {
     _members.push_back(s);
   }
 
-  int member_count() {
-    return _members.size();
-  }
+  const std::vector<Star *> &members() const { return _members; }
 
+  void print() const;
+
+ private:
   void disband();
-
-  void print(); 
-
-  static void init_blocks(Star* star_matrix[WIDTH][LENGTH], std::vector<Block> &blocks);
 
  private:
   int _id;

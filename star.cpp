@@ -74,3 +74,20 @@ error:
   goto done;
 }
 
+void Star::init_star_matrix(Star stars[STAR_COUNT], Star *star_matrix[WIDTH][LENGTH]) {
+  for (int y = 0; y < LENGTH; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      star_matrix[x][y] = &stars[x + y * WIDTH];
+    }
+  }
+}
+
+void Star::print_star_matrix(Star *star_matrix[WIDTH][LENGTH]) {
+  for (int y = 0; y < LENGTH; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      cout << star_matrix[x][y]->type();
+    }
+    cout << endl;
+  }
+  cout << endl;
+}

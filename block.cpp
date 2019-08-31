@@ -2,11 +2,12 @@
 
 using namespace std;
 
-void Block::print() {
-  cout << "id: " << _id << endl;
-  cout << "members: " << endl;
+void Block::print() const {
+  cout << "id: " << _id << "\t";
+  cout << "type: " << _members[0]->type() << "\t";
+  cout << "members: ";
   for (int i = 0; i < _members.size(); ++i) {
-    _members[i]->print();
+    cout << _members[i]->id() << " ";
   }
   cout << endl;
 }
@@ -18,7 +19,10 @@ void Block::disband() {
   _members.clear();
 }
 
-void add_neighbor_star_to_block(Star* star_matrix[WIDTH][LENGTH], int x, int y, Block *p_block) {
+void add_neighbor_star_to_block(Star* star_matrix[WIDTH][LENGTH], 
+                                int x, 
+                                int y, 
+                                Block *p_block) {
   Star *p_center_star = star_matrix[x][y];
   if (INVALID_BLOCK_ID == p_center_star->block_id()) {
     p_block->add(p_center_star);
@@ -54,14 +58,15 @@ void add_neighbor_star_to_block(Star* star_matrix[WIDTH][LENGTH], int x, int y, 
   }
 }
 
-void Block::init_blocks(Star* star_matrix[WIDTH][LENGTH], vector<Block> &blocks) {
+void Block::init_blocks(Star* star_matrix[WIDTH][LENGTH], 
+                        vector<Block> &blocks) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       if (INVALID_BLOCK_ID == star_matrix[x][y]->block_id()) {
         Block new_block;
         new_block.set_id(blocks.size());
         add_neighbor_star_to_block(star_matrix, x, y, &new_block);
-        if (new_block.member_count() >= 2) {
+        if (new_block._members.size() >= 2) {
           blocks.push_back(new_block);
         } else {
           new_block.disband();          

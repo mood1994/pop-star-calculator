@@ -1,40 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <assert.h>
+#include <set>
 
 #include "star.hpp"
 #include "def.hpp"
-#include "block.hpp"
+#include "plan.hpp"
 
 using namespace std;
-
-// global function
-int calc_kill_score(uint kill_count) {
-  return kill_count * kill_count * 5;
-}
-
-int calc_reward_score(uint left_count) {
-  static const uint MAX_REWARD_SCORE = 3000;
-  return MAX_REWARD_SCORE - left_count * 5;
-}
-
-void init_star_matrix(Star stars[STAR_COUNT], Star *star_matrix[WIDTH][LENGTH]) {
-  for (int y = 0; y < LENGTH; ++y) {
-    for (int x = 0; x < WIDTH; ++x) {
-      star_matrix[x][y] = &stars[x + y * WIDTH];
-    }
-  }
-}
-
-void print_star_matrix(Star *star_matrix[WIDTH][LENGTH]) {
-  for (int y = 0; y < LENGTH; ++y) {
-    for (int x = 0; x < WIDTH; ++x) {
-      cout << star_matrix[x][y]->type();
-    }
-    cout << endl;
-  }
-  cout << endl;
-}
 
 int main(int argc, char **argv) {
   Star stars[STAR_COUNT];
@@ -48,15 +21,31 @@ int main(int argc, char **argv) {
   } else {
     Star::init_stars(stars);
   }
-  init_star_matrix(stars, star_matrix);
+  Star::init_star_matrix(stars, star_matrix);
+  Star::print_star_matrix(star_matrix);
 
-  print_star_matrix(star_matrix);
+  Plan root(star_matrix);
+  root.print();
+  Plan::best_plan = root;
 
-  vector<Block> blocks;
-  Block::init_blocks(star_matrix, blocks);
-  for (int i = 0; i < blocks.size(); ++i) {
-    blocks[i].print();
-  }
+  set<Plan> plans;
+  cout << "init plans" << endl;
+  root.next_step(plans);
+
+  /*int round = 0;
+  set<Plan> further_plans;
+  while (!plans.empty()) {
+    cout << "round: " << ++round << endl;
+    set<Plan>::iterator it;
+    further_plans.clear();
+    for (it = plans.begin(); it != plans.end(); ++it) {
+      it->next_step(further_plans);
+    }
+    plans = further_plans;
+  }*/
+
+  cout << endl << "BEST: " << endl;
+  Plan::best_plan.print();
 
   return 0;
 }
