@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void init_stars(star stars[STAR_COUNT]) {
+void Star::init_stars(Star stars[STAR_COUNT]) {
   srand((unsigned)time(NULL));
   for (int i = 0; i < STAR_COUNT; ++i) {
     int rand_type = rand() % STAR_TYPE_COUNT;
@@ -16,7 +16,7 @@ void init_stars(star stars[STAR_COUNT]) {
   }
 }
 
-int read_stars_from_file(int argc, char **argv, star stars[STAR_COUNT]) {
+int Star::read_stars_from_file(int argc, char **argv, Star stars[STAR_COUNT]) {
   int rc = 0;
   ifstream ifs;
   char c = 0;

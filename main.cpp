@@ -18,7 +18,7 @@ int calc_reward_score(uint left_count) {
   return MAX_REWARD_SCORE - left_count * 5;
 }
 
-void init_star_matrix(star stars[STAR_COUNT], star *star_matrix[WIDTH][LENGTH]) {
+void init_star_matrix(Star stars[STAR_COUNT], Star *star_matrix[WIDTH][LENGTH]) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       star_matrix[x][y] = &stars[x + y * WIDTH];
@@ -26,7 +26,7 @@ void init_star_matrix(star stars[STAR_COUNT], star *star_matrix[WIDTH][LENGTH]) 
   }
 }
 
-void print_star_matrix(star *star_matrix[WIDTH][LENGTH]) {
+void print_star_matrix(Star *star_matrix[WIDTH][LENGTH]) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       cout << star_matrix[x][y]->type();
@@ -37,23 +37,23 @@ void print_star_matrix(star *star_matrix[WIDTH][LENGTH]) {
 }
 
 int main(int argc, char **argv) {
-  star stars[STAR_COUNT];
-  star *star_matrix[WIDTH][LENGTH];
+  Star stars[STAR_COUNT];
+  Star *star_matrix[WIDTH][LENGTH];
   
   if (argc > 1) {
-    if (read_stars_from_file(argc, argv, stars)) {
+    if (Star::read_stars_from_file(argc, argv, stars)) {
       cerr << "Fail to read stars" << endl;
       return 1;
     }
   } else {
-    init_stars(stars);
+    Star::init_stars(stars);
   }
   init_star_matrix(stars, star_matrix);
 
   print_star_matrix(star_matrix);
 
-  vector<block> blocks;
-  init_blocks(star_matrix, blocks);
+  vector<Block> blocks;
+  Block::init_blocks(star_matrix, blocks);
   for (int i = 0; i < blocks.size(); ++i) {
     blocks[i].print();
   }

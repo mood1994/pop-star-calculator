@@ -6,13 +6,13 @@
 #include "star.hpp"
 #include "def.hpp"
 
-class block {
+class Block {
  public:
   int id() { return _id; }
 
   void set_id(int id) { _id = id; }
 
-  void add(star *s) {
+  void add(Star *s) {
     _members.push_back(s);
   }
 
@@ -24,11 +24,12 @@ class block {
 
   void print(); 
 
+  static void init_blocks(Star* star_matrix[WIDTH][LENGTH], std::vector<Block> &blocks);
+
  private:
   int _id;
-  std::vector<star *> _members;
+  std::vector<Star *> _members;
 };
 
-void init_blocks(star* star_matrix[WIDTH][LENGTH], std::vector<block> &blocks);
 
 #endif // BLOCK_HPP

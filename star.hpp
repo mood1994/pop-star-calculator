@@ -4,9 +4,9 @@
 #include <iostream>
 #include "def.hpp"
 
-class star {
+class Star {
  public:
-  star() {
+  Star() {
     _block_id = INVALID_BLOCK_ID;
   }
 
@@ -26,14 +26,14 @@ class star {
     std::cout << "{ id: " << _id << ", type: " << _type << " }" << std::endl;
   }
 
+  static void init_stars(Star stars[STAR_COUNT]);
+
+  static int read_stars_from_file(int argc, char **argv, Star stars[STAR_COUNT]);
+
  private:
   int _type;
   int _id;
   int _block_id;
 };
-
-void init_stars(star stars[STAR_COUNT]);
-
-int read_stars_from_file(int argc, char **argv, star stars[STAR_COUNT]);
 
 #endif // STAR_HPP
