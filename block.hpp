@@ -14,25 +14,27 @@ struct Coord {
 
 class Block {
  public:
-  static short max_id;
+  static int max_id;
   static void init_blocks(Star star_matrix[WIDTH][LENGTH], 
                           std::vector<Block> &blocks);
 
  public:
-  short id() const { return _id; }
+  int id() const { return _id; }
 
-  void set_id(short id) { _id = id; }
+  void set_id(int id) { _id = id; }
 
   void add(const Coord &c) {
     _members.push_back(c);
   }
+
+  void disband(Star star_matrix[WIDTH][LENGTH]) const;
 
   const std::vector<Coord> &members() const { return _members; }
 
   void print() const;
 
  private:
-  short _id;
+  int _id;
   std::vector<Coord> _members;
 };
 

@@ -6,7 +6,6 @@
 #include "star.hpp"
 #include "def.hpp"
 #include "plan.hpp"
-
 using namespace std;
 
 int main(int argc, char **argv) {
@@ -22,7 +21,6 @@ int main(int argc, char **argv) {
     Star::init_stars(stars);
   }
   Star::init_matrix(stars, star_matrix);
-  Star::print_matrix(star_matrix);
 
   Plan root(star_matrix);
   root.print();
@@ -32,7 +30,7 @@ int main(int argc, char **argv) {
   cout << "init plans" << endl;
   root.next_step(plans);
 
-  /*int round = 0;
+  int round = 0;
   set<Plan> further_plans;
   while (!plans.empty()) {
     cout << "round: " << ++round << endl;
@@ -42,7 +40,7 @@ int main(int argc, char **argv) {
       it->next_step(further_plans);
     }
     plans = further_plans;
-  }*/
+  }
 
   cout << endl << "BEST: " << endl;
   Plan::best_plan.print();

@@ -29,22 +29,22 @@ class Star {
 
   void set_type(short type) { _type = type; }
 
-  int id() const { return _id; }
+  short id() const { return _id; }
 
-  void set_id(int id) { _id = id; }
+  void set_id(short id) { _id = id; }
 
-  short block_id() const { return _block_id; }
+  int block_id() const { return _block_id; }
 
-  void set_block_id(short block_id) { _block_id = block_id; }
+  void set_block_id(int block_id) { _block_id = block_id; }
 
   void print() const {
     std::cout << "{ id: " << _id << ", type: " << _type << " }" << std::endl;
   }
 
  private:
-  int _id;
+  short _id;
   short _type;
-  short _block_id;
+  int _block_id;
 };
 
 bool operator == (const Star &l, const Star &r);

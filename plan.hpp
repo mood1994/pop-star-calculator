@@ -22,7 +22,7 @@ class Plan {
 
  private:
   Plan() {}
-  void pop(int block2pop, Plan &result) const;
+  void pop(const Block &block2pop, Plan &result) const;
   void finish();
 
  private:

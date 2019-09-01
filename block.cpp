@@ -2,7 +2,7 @@
 
 using namespace std;
 
-short Block::max_id = 0;
+int Block::max_id = 0;
 
 void Block::print() const {
   cout << "id: " << _id << "\t";
@@ -11,6 +11,13 @@ void Block::print() const {
     cout << "(" << _members[i].x << "," << _members[i].y << ") " ;
   }
   cout << endl;
+}
+
+void Block::disband(Star star_matrix[WIDTH][LENGTH]) const {
+  for (int i = 0; i < _members.size(); ++i) {
+    star_matrix[_members[i].x][_members[i].y]
+        .set_block_id(INVALID_BLOCK_ID);
+  }
 }
 
 void add_neighbor_star_to_block(Star star_matrix[WIDTH][LENGTH], 
@@ -56,17 +63,15 @@ void Block::init_blocks(Star star_matrix[WIDTH][LENGTH],
                         vector<Block> &blocks) {
   for (short y = 0; y < LENGTH; ++y) {
     for (short x = 0; x < WIDTH; ++x) {
-      if (INVALID_BLOCK_ID == star_matrix[x][y].block_id()) {
+      if (star_matrix[x][y] != Star::INVALID &&
+          INVALID_BLOCK_ID == star_matrix[x][y].block_id()) {
         Block new_block;
         new_block.set_id(Block::max_id++);
         add_neighbor_star_to_block(star_matrix, x, y, new_block);
         if (new_block._members.size() >= 2) {
           blocks.push_back(new_block);
         } else {
-          for (int i = 0; i < new_block._members.size(); ++i) {
-            star_matrix[new_block._members[i].x][new_block._members[i].y]
-                .set_block_id(INVALID_BLOCK_ID);
-          }
+          new_block.disband(star_matrix);
           --Block::max_id;
         }
       }
