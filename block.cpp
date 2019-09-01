@@ -60,7 +60,7 @@ void add_neighbor_star_to_block(Star star_matrix[WIDTH][LENGTH],
 }
 
 void Block::init_blocks(Star star_matrix[WIDTH][LENGTH], 
-                        vector<Block> &blocks) {
+                        map<int, Block> &blocks) {
   for (short y = 0; y < LENGTH; ++y) {
     for (short x = 0; x < WIDTH; ++x) {
       if (star_matrix[x][y] != Star::INVALID &&
@@ -69,7 +69,7 @@ void Block::init_blocks(Star star_matrix[WIDTH][LENGTH],
         new_block.set_id(Block::max_id++);
         add_neighbor_star_to_block(star_matrix, x, y, new_block);
         if (new_block._members.size() >= 2) {
-          blocks.push_back(new_block);
+          blocks.insert(pair<int, Block>(new_block.id(), new_block));
         } else {
           new_block.disband(star_matrix);
           --Block::max_id;

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include "star.hpp"
 #include "block.hpp"
 #include "def.hpp"
@@ -27,7 +28,7 @@ class Plan {
 
  private:
   Star _matrix[WIDTH][LENGTH];
-  std::vector<Block> _blocks;
+  std::map<int, Block> _block_map;
   std::vector<int> _walk_path;
   int _score;
 };

@@ -16,20 +16,18 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
                                       int x,
                                       int up_y,
                                       int down_y,
-                                      const vector<Block> &blocks,
+                                      const map<int, Block> &block_map,
                                       set<int> &out_blocks) {
   // Note: down_star always be INVALID.
   Star &up_star = matrix[x][up_y];
   Star &down_star = matrix[x][down_y];
   // 1. disband old block
   int disband_id = up_star.block_id();
+  map<int, Block>::const_iterator it;
   if (disband_id != INVALID_BLOCK_ID) {
     out_blocks.insert(disband_id);
-    for (int i = 0; i < blocks.size(); ++i) {
-      if (blocks[i].id() == disband_id) {
-        blocks[i].disband(matrix);
-      }
-    }
+    it = block_map.find(disband_id);
+    it->second.disband(matrix);
   }
   // 2. move up_star down
   down_star = up_star;
@@ -42,11 +40,8 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
     if (left.type() == my_type && 
         left.block_id() != INVALID_BLOCK_ID) {
       out_blocks.insert(left.block_id());
-      for (int i = 0; i < blocks.size(); ++i) {
-        if (blocks[i].id() == left.block_id()) {
-          blocks[i].disband(matrix);
-        }
-      }
+      it = block_map.find(left.block_id());
+      it->second.disband(matrix);
     }
   }
   if (x < WIDTH - 1) {
@@ -54,11 +49,8 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
     if (right.type() == my_type &&
         right.block_id() != INVALID_BLOCK_ID) {
       out_blocks.insert(right.block_id());
-      for (int i = 0; i < blocks.size(); ++i) {
-        if (blocks[i].id() == right.block_id()) {
-          blocks[i].disband(matrix);
-        }
-      }
+      it = block_map.find(right.block_id());
+      it->second.disband(matrix);
     }
   }
   if (down_y < LENGTH - 1) {
@@ -66,50 +58,38 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
     if (down.type() == my_type &&
         down.block_id() != INVALID_BLOCK_ID) {
       out_blocks.insert(down.block_id());
-      for (int i = 0; i < blocks.size(); ++i) {
-        if (blocks[i].id() == down.block_id()) {
-          blocks[i].disband(matrix);
-        }
-      }
+      it = block_map.find(down.block_id());
+      it->second.disband(matrix);
     }
   }
 }
 
 void remove_column_and_disband_block(Star matrix[WIDTH][LENGTH], 
                                      int x, 
-                                     const vector<Block> &blocks,
+                                     const map<int, Block> &block_map,
                                      set<int> &out_blocks) {
   // disband blocks of neighbor columns.
-  for (int y = 0; y < LENGTH; ++y) {
-    if (x > 0) {
-      Star &left = matrix[x - 1][y];
-      if (left != Star::INVALID &&
-          left.block_id() != INVALID_BLOCK_ID) {
-        for (int i = 0; i < blocks.size(); ++i) {
-          if (blocks[i].id() == left.block_id()) {
-            blocks[i].disband(matrix);
-          }
-        }
-      }
-    }
-    if (x < WIDTH - 1) {
-      Star &right = matrix[x + 1][y];
-      if (right != Star::INVALID &&
-          right.block_id() != INVALID_BLOCK_ID) {
-        for (int i = 0; i < blocks.size(); ++i) {
-          if (blocks[i].id() == right.block_id()) {
-            blocks[i].disband(matrix);
-          }
-        }
+  map<int, Block>::const_iterator it;
+  if (x > 0) {
+    for (int y = 0; y < LENGTH; ++y) {
+      int left_id = matrix[x - 1][y].block_id();
+      if (left_id != INVALID_BLOCK_ID) {
+        it = block_map.find(left_id);
+        it->second.disband(matrix);
+        out_blocks.insert(left_id);
       }
     }
   }
   // move all right columns left.
   for (int i = x + 1; i < WIDTH; ++i) {
     for (int y = 0; y < LENGTH; ++y) {
-      if (matrix[i][y] != Star::INVALID) {
-        matrix[i - 1][y] = matrix[i][y];
+      int right_id = matrix[i][y].block_id();
+      if (right_id != INVALID_BLOCK_ID) {
+        it = block_map.find(right_id);
+        it->second.disband(matrix);
+        out_blocks.insert(right_id);
       }
+      matrix[i - 1][y] = matrix[i][y];
     }
   }
   if (matrix[WIDTH - 1][LENGTH - 1] != Star::INVALID) {
@@ -129,16 +109,17 @@ Plan::Plan(const Star star_matrix[WIDTH][LENGTH]) {
       _matrix[i][j].set_block_id(INVALID_BLOCK_ID);
     }
   }
-  Block::init_blocks(_matrix, _blocks);
+  Block::init_blocks(_matrix, _block_map);
   int _score = 0;
 }
 
 void Plan::next_step(set<Plan> &further_plans) const {
-  for (int i = 0; i < _blocks.size(); ++i) {
+  map<int, Block>::const_iterator it;
+  for (it = _block_map.begin(); it != _block_map.end(); ++it) {
     Plan res;
-    pop(_blocks[i], res);
+    pop(it->second, res);
     res.print();
-    if (!res._blocks.empty()) {
+    if (!res._block_map.empty()) {
       if (further_plans.insert(res).second == false) {
         cout << "Plan was discarded for duplication." << endl;
       }
@@ -165,8 +146,9 @@ void Plan::print() const {
   cout << endl;
 
   cout << "BLOCKS: " << endl;
-  for (int i = 0; i < _blocks.size(); ++i) {
-    _blocks[i].print();
+  map<int, Block>::const_iterator it;
+  for (it = _block_map.begin(); it != _block_map.end(); ++it) {
+    it->second.print();
   }
   cout << "=================================================" << endl;
 }
@@ -220,7 +202,7 @@ void Plan::pop(const Block &block2pop, Plan& result) const {
             all_null = false; 
             move_down_star_and_disband_block(result._matrix,
                                              x, up, y,
-                                             _blocks,
+                                             _block_map,
                                              out_blocks);
             break;
           }
@@ -233,29 +215,36 @@ void Plan::pop(const Block &block2pop, Plan& result) const {
   }
 
   // Move left
-  for (int x = 0; x < WIDTH; ++x) {
+  int x = 0;
+  while (x < WIDTH - 1) {
     // If the bottom one is NULL, all the column must be NULL.
     if (result._matrix[x][LENGTH - 1] != Star::INVALID) {
+      x += 1;
       continue;
     }
+    bool is_tail = true;
+    for (int i = x + 1; i < WIDTH; ++i) {
+      if (result._matrix[i][LENGTH - 1] != Star::INVALID) {
+        is_tail = false;
+      }
+    }
+    if (is_tail) {
+      break;
+    }
     remove_column_and_disband_block(result._matrix, x, 
-                                    _blocks, out_blocks);
+                                    _block_map, out_blocks);
   }
 
-  vector<Block> new_blocks;
-  Block::init_blocks(result._matrix, new_blocks);
-
   out_blocks.insert(block2pop.id());
-  for (int i = 0; i < _blocks.size(); ++i) {
-    if (out_blocks.count(_blocks[i].id()) == 0) {
-      result._blocks.push_back(_blocks[i]);
+  map<int, Block>::const_iterator it;
+  for (it = _block_map.begin(); it != _block_map.end(); ++it) {
+    if (out_blocks.count(it->second.id()) == 0) {
+      pair<int, Block> val(it->second.id(), it->second);
+      result._block_map.insert(val);
     }
   }
 
-  for (int i = 0; i < new_blocks.size(); ++i) {
-    result._blocks.push_back(new_blocks[i]);
-  }
-
+  Block::init_blocks(result._matrix, result._block_map);
 }
 
 void Plan::finish() {

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include "star.hpp"
 #include "def.hpp"
 
@@ -16,7 +17,7 @@ class Block {
  public:
   static int max_id;
   static void init_blocks(Star star_matrix[WIDTH][LENGTH], 
-                          std::vector<Block> &blocks);
+                          std::map<int, Block> &blocks);
 
  public:
   int id() const { return _id; }
