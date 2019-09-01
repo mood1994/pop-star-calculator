@@ -12,7 +12,7 @@ class Plan {
   static Plan best_plan;
 
  public:
-  Plan(Star *star_matrix[WIDTH][LENGTH]);
+  Plan(const Star star_matrix[WIDTH][LENGTH]);
 
   void next_step(std::set<Plan> &further_plans) const;
 
@@ -26,7 +26,7 @@ class Plan {
   void finish();
 
  private:
-  Star *_matrix[WIDTH][LENGTH];
+  Star _matrix[WIDTH][LENGTH];
   std::vector<Block> _blocks;
   std::vector<int> _walk_path;
   int _score;

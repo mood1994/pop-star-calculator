@@ -6,30 +6,34 @@
 #include "star.hpp"
 #include "def.hpp"
 
+struct Coord {
+  Coord(short arg_x, short arg_y): x(arg_x), y(arg_y) {}
+  short x;
+  short y;
+};
+
 class Block {
  public:
-  static void init_blocks(Star* star_matrix[WIDTH][LENGTH], 
+  static short max_id;
+  static void init_blocks(Star star_matrix[WIDTH][LENGTH], 
                           std::vector<Block> &blocks);
 
  public:
-  int id() const { return _id; }
+  short id() const { return _id; }
 
-  void set_id(int id) { _id = id; }
+  void set_id(short id) { _id = id; }
 
-  void add(Star *s) {
-    _members.push_back(s);
+  void add(const Coord &c) {
+    _members.push_back(c);
   }
 
-  const std::vector<Star *> &members() const { return _members; }
+  const std::vector<Coord> &members() const { return _members; }
 
   void print() const;
 
  private:
-  void disband();
-
- private:
-  int _id;
-  std::vector<Star *> _members;
+  short _id;
+  std::vector<Coord> _members;
 };
 
 

@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char **argv) {
   Star stars[STAR_COUNT];
-  Star *star_matrix[WIDTH][LENGTH];
+  Star star_matrix[WIDTH][LENGTH];
   
   if (argc > 1) {
     if (Star::read_stars_from_file(argc, argv, stars)) {
@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
   } else {
     Star::init_stars(stars);
   }
-  Star::init_star_matrix(stars, star_matrix);
-  Star::print_star_matrix(star_matrix);
+  Star::init_matrix(stars, star_matrix);
+  Star::print_matrix(star_matrix);
 
   Plan root(star_matrix);
   root.print();

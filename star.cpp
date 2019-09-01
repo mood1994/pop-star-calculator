@@ -7,10 +7,12 @@
 
 using namespace std;
 
+const Star Star::INVALID;
+
 void Star::init_stars(Star stars[STAR_COUNT]) {
   srand((unsigned)time(NULL));
   for (int i = 0; i < STAR_COUNT; ++i) {
-    int rand_type = rand() % STAR_TYPE_COUNT;
+    short rand_type = rand() % STAR_TYPE_COUNT;
     stars[i].set_type(rand_type);
     stars[i].set_id(i);
   }
@@ -74,20 +76,34 @@ error:
   goto done;
 }
 
-void Star::init_star_matrix(Star stars[STAR_COUNT], Star *star_matrix[WIDTH][LENGTH]) {
+void Star::init_matrix(Star stars[STAR_COUNT], Star star_matrix[WIDTH][LENGTH]) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
-      star_matrix[x][y] = &stars[x + y * WIDTH];
+      star_matrix[x][y] = stars[x + y * WIDTH];
     }
   }
 }
 
-void Star::print_star_matrix(Star *star_matrix[WIDTH][LENGTH]) {
+void Star::print_matrix(const Star star_matrix[WIDTH][LENGTH]) {
   for (int y = 0; y < LENGTH; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
-      cout << star_matrix[x][y]->type();
+      short t = star_matrix[x][y].type();
+      if (t != INVALID_STAR_TYPE) {
+        cout << t;
+      } else {
+        cout << ' ';
+      }
     }
     cout << endl;
   }
   cout << endl;
 }
+
+bool operator == (const Star &l, const Star &r) {
+  return l.id() == r.id();
+}
+
+bool operator != (const Star &l, const Star &r) {
+  return !operator==(l, r);
+}
+
