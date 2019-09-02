@@ -2,6 +2,7 @@
 #define DEF_HPP
 
 typedef unsigned int uint;
+typedef long long int64;
 
 static const uint WIDTH = 5;
 static const uint LENGTH = 5;

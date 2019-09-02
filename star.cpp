@@ -18,21 +18,15 @@ void Star::init_stars(Star stars[STAR_COUNT]) {
   }
 }
 
-int Star::read_stars_from_file(int argc, char **argv, Star stars[STAR_COUNT]) {
+int Star::read_stars_from_file(const char *file_path, Star stars[STAR_COUNT]) {
   int rc = 0;
   ifstream ifs;
   char c = 0;
   int i = 0;
 
-  if (argc != 2) {
-    cerr << "Wrong count of arguments" << endl;
-    rc = 1;
-    goto error;
-  }
-
-  ifs.open(argv[1], ifstream::in);
+  ifs.open(file_path, ifstream::in);
   if (ifs.fail()) {
-    cerr << "Can't open file " << argv[1] << endl;
+    cerr << "Can't open file " << file_path << endl;
     rc = 1;
     goto error;
   }

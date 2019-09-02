@@ -1,5 +1,6 @@
 #include "plan.hpp"
 #include <iostream>
+#include "monitor.hpp"
 
 using namespace std;
 
@@ -102,7 +103,6 @@ void remove_column_and_disband_block(Star matrix[WIDTH][LENGTH],
 Plan Plan::best_plan;
 
 Plan::Plan(const Star star_matrix[WIDTH][LENGTH]) {
-  cout << "Initializing plan" << endl;
   for (int i = 0; i < WIDTH; ++i) {
     for (int j = 0; j < LENGTH; ++j) {
       _matrix[i][j] = star_matrix[i][j];
@@ -118,16 +118,19 @@ void Plan::next_step(set<Plan> &further_plans) const {
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
     Plan res;
     pop(it->second, res);
-    res.print();
+    DEBUG_DO(res.print());
+    mon.inc_total_plan();
     if (!res._block_map.empty()) {
       if (further_plans.insert(res).second == false) {
-        cout << "Plan was discarded for duplication." << endl;
+        mon.inc_discard_plan();
+        DEBUG_DO(cout << "Plan was discarded for duplication." << endl);
       }
     } else {
+      mon.inc_finish_plan();
       res.finish();
       if (res._score > best_plan._score) {
         best_plan = res;
-        cout << "New best score: " << res._score << endl;
+        DEBUG_DO(cout << "New best score: " << res._score << endl);
       }
     }
   }
@@ -257,6 +260,6 @@ void Plan::finish() {
     }
   }
   int reward = calc_reward_score(left_stars);
-  cout << "Plan finish. Get reward " << reward << endl;
+  DEBUG_DO(cout << "Plan finish. Get reward " << reward << endl);
   _score += reward;
 }

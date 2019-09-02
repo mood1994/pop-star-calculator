@@ -7,10 +7,10 @@
 class Star {
  public:
   static const Star INVALID;
+
   static void init_stars(Star stars[STAR_COUNT]);
 
-  static int read_stars_from_file(int argc, 
-                                  char **argv, 
+  static int read_stars_from_file(const char *file_path,
                                   Star stars[STAR_COUNT]);
   
   static void init_matrix(Star stars[STAR_COUNT], 
