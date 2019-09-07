@@ -15,22 +15,29 @@ class Monitor {
   void set_debug(bool arg_debug) { _debug = arg_debug; }
 
   bool debug() { return _debug; }
+
+  llong total_plan_cnt() { return _total_plan_cnt; }
+
+  void inc_total_plan(llong n = 1) { _total_plan_cnt += n; }
+
+  llong discard_plan_cnt() { return _discard_plan_cnt; }
   
-  void inc_total_plan(int64 n = 1) { _total_plan_cnt += n; }
+  void inc_discard_plan(llong n = 1) { _discard_plan_cnt += n; }
 
-  void inc_discard_plan(int64 n = 1) { _discard_plan_cnt += n; }
+  llong finish_plan_cnt() { return _finish_plan_cnt; }
 
-  void inc_finish_plan(int64 n = 1) { _finish_plan_cnt += n; }
+  void inc_finish_plan(llong n = 1) { _finish_plan_cnt += n; }
 
-  int64 total_plan_cnt() { return _total_plan_cnt; }
+  llong quick_discard() { return _quick_discard; }
 
-  int64 discard_plan_cnt() { return _discard_plan_cnt; }
+  void inc_quick_discard(llong n = 1) { _quick_discard += n; }
 
-  int64 finish_plan_cnt() { return _finish_plan_cnt; }
+  void print();
 
   void reset() {
     _total_plan_cnt = 0;
     _discard_plan_cnt = 0;
+    _quick_discard = 0;
     _finish_plan_cnt = 0;
   }
 
@@ -38,9 +45,10 @@ class Monitor {
   time_t _start_time;
   time_t _stop_time;
   bool _debug;
-  int64 _total_plan_cnt;
-  int64 _discard_plan_cnt;
-  int64 _finish_plan_cnt;
+  llong _total_plan_cnt;
+  llong _discard_plan_cnt;
+  llong _finish_plan_cnt;
+  llong _quick_discard;
 };
 
 extern Monitor mon;

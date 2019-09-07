@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <set>
-#include <time.h>
 
 #include "star.hpp"
 #include "def.hpp"
@@ -10,9 +9,7 @@
 using namespace std;
 
 void get_options(int argc, char **argv, const char **file, bool &debug) {
-  *file = NULL;
-  debug = false;
-  for (int i = 1; i < argc; ++i) {
+  *file = NULL; debug = false; for (int i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "--debug") == 0 ||
         strcmp(argv[i], "-d") == 0) {
       debug = true;
@@ -47,6 +44,7 @@ int main(int argc, char **argv) {
     Star::init_stars(stars);
   }
   Star::init_matrix(stars, star_matrix);
+  Star::print_matrix(star_matrix);
 
   DEBUG_DO(cout << "Initializing root" << endl);
   Plan root(star_matrix);
@@ -65,13 +63,8 @@ int main(int argc, char **argv) {
     for (it = plans.begin(); it != plans.end(); ++it) {
       it->next_step(further_plans);
     }
-    time_t now_time=time(NULL);
-    tm*  t_tm = localtime(&now_time);
-    cout << "round: " << ++round << endl
-         << "total_plans:   " << mon.total_plan_cnt() << endl
-         << "discard_plans: " << mon.discard_plan_cnt() << endl      
-         << "finish_plans:  " << mon.finish_plan_cnt() << endl
-         << "at: " << asctime(t_tm) << endl;
+    cout << "round: " << ++round << endl;
+    mon.print();
     plans = further_plans;
   }
 

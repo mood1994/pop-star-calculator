@@ -28,8 +28,8 @@ class Plan {
 
  private:
   Star _matrix[WIDTH][LENGTH];
-  std::map<int, Block> _block_map;
-  std::vector<int> _walk_path;
+  std::map<int, const Block*> _block_map;
+  std::vector<const Block*> _walk_path;
   int _score;
 };
 

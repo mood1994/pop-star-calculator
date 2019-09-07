@@ -17,3 +17,13 @@ Monitor::~Monitor() {
   _stop_time = time(NULL);
   cout << "Time cost: " << _stop_time - _start_time << " (s)" << endl;
 }
+
+void Monitor::print() {
+  time_t now_time=time(NULL);
+  tm*  t_tm = localtime(&now_time);
+  cout << "total_plans:   " << _total_plan_cnt << endl
+       << "discard_plans: " << _discard_plan_cnt << endl      
+       << "quick_discard: " << _quick_discard << endl
+       << "finish_plans:  " << _finish_plan_cnt << endl
+       << "at: " << asctime(t_tm) << endl;
+}
