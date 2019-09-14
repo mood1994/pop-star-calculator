@@ -149,10 +149,9 @@ void Block::get_bound_y(int &min_y, int &max_y) const {
 uint Block::hash(uint max) const {
   uint hash_code = 0;
   hash_code |= (_type << (2 * BYTE_BITS));
-  uint no_0 = _members[0].y * WIDTH + _members[0].x;
-  hash_code |= (no_0 << (1 * BYTE_BITS));
-  uint no_1 = _members[1].y * WIDTH + _members[1].x;
-  hash_code |= no_1;
+  for (int i = 0; i < _members.size(); ++i) {
+    hash_code += (_members[i].y << 4) + _members[i].x;
+  }
   hash_code %= max;
   return hash_code;
 }

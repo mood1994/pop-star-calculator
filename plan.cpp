@@ -135,8 +135,6 @@ Plan::Plan(const Plan& p) {
   _score = p._score;
 }
 
-static set<Plan> test_plan_set;
-
 void Plan::next_step(vector<Plan> &further_plans, Mtrx_hash_set &mtrx_set) const {
   map<int, const Block*>::const_iterator it;
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
@@ -156,7 +154,6 @@ void Plan::next_step(vector<Plan> &further_plans, Mtrx_hash_set &mtrx_set) const
     if (!res._block_map.empty()) {
       Mini_matrix mini(res._matrix, res._score);
       Mtrx_set_ret ret = mtrx_set.insert(mini);
-      pair<set<Plan>::iterator, bool> r = test_plan_set.insert(res);
       if (ret.second) {
         further_plans.push_back(res);
       } else {

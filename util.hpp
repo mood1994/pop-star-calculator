@@ -27,6 +27,14 @@ class Hash_set {
     return sz;
   }
 
+  void print_stats() {
+    std::cout << "bucket size detail: ";
+    for (int i = 0; i < N; ++i) {
+      std::cout << _buckets[i].size() << ' ';
+    }
+    std::cout << std::endl;
+  }
+
  private:
   std::set<T> _buckets[N];
 };

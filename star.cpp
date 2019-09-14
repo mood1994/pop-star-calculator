@@ -127,9 +127,9 @@ Mini_matrix::Mini_matrix(const Star matrix[WIDTH][LENGTH], short score) {
     }
 
     offset += TYPE_BITS;
-    if (i % 8 == 0) {
+    if (i % BYTE_BITS == 0) {
       offset = 0;
-      buf_bits = (ullong*) (_buf + ((i / 8) * 3));
+      buf_bits = (ullong*) (_buf + ((i / BYTE_BITS) * TYPE_BITS));
     }
   }
 
@@ -157,15 +157,16 @@ void Mini_matrix::print() const {
 }
 
 bool Mini_matrix::operator <(const Mini_matrix &m) const {
-  return _score < m._score || memcmp(_buf, m._buf, sizeof(_buf)) < 0;
+  return memcmp(_buf, m._buf, sizeof(_buf)) < 0 || _score < m._score;
 }
 
 uint Mini_matrix::hash(uint max) const {
-  static const uint ONE_OF_FIVE = DIVIDE_AND_CEIL(MINI_MTRX_SIZE, 5);
-
   ullong hash_code = _score;
-  hash_code += *((ullong *) (_buf + ONE_OF_FIVE));
-  hash_code += *((ullong *) (_buf + 3 * ONE_OF_FIVE));
+  const ullong *p = (const ullong *) _buf;
+  for (uint i = 0; i < MINI_MTRX_SIZE / sizeof(ullong); ++i) {
+    hash_code += *p;
+    p += 1;
+  }
   hash_code %= max;
   return hash_code;
 }

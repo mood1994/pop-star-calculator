@@ -76,7 +76,6 @@ int main(int argc, char **argv) {
     cout << "** ROUND: " << ++round << " **" << endl;
     mon.print();
   }
-  // TODO: is hash bucket balance?
 
   cout << endl << "BEST: " << endl;
   Plan::best_plan.print();
