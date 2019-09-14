@@ -1,4 +1,5 @@
 #include "monitor.hpp"
+#include "block.hpp"
 #include <iostream>
 
 using namespace std;
@@ -25,5 +26,6 @@ void Monitor::print() {
        << "discard_plans: " << _discard_plan_cnt << endl      
        << "quick_discard: " << _quick_discard << endl
        << "finish_plans:  " << _finish_plan_cnt << endl
+       << "global blocks: " << Block::global_blocks.size() << endl
        << "at: " << asctime(t_tm) << endl;
 }

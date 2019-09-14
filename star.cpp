@@ -9,20 +9,27 @@ using namespace std;
 
 const Star Star::INVALID;
 
-void Star::init_stars(Star stars[STAR_COUNT]) {
+void Star::make_random_matrix(Star matrix[WIDTH][LENGTH]) {
+  int x = 0;
+  int y = 0;
   srand((unsigned)time(NULL));
   for (int i = 0; i < STAR_COUNT; ++i) {
-    short rand_type = rand() % STAR_TYPE_COUNT;
-    stars[i].set_type(rand_type);
-    stars[i].set_id(i);
+    short rand_type = (rand() % STAR_TYPE_COUNT) + 1;
+    matrix[x][y].set_type(rand_type);
+    matrix[x][y].set_id(i);
+    y += 1;
+    if (y == LENGTH) {
+      x += 1;
+    }
   }
 }
 
-int Star::read_stars_from_file(const char *file_path, Star stars[STAR_COUNT]) {
+int Star::read_matrix_from_file(const char *file_path, Star matrix[WIDTH][LENGTH]) {
   int rc = 0;
   ifstream ifs;
   char c = 0;
   int i = 0;
+  Star stars[STAR_COUNT];
 
   ifs.open(file_path, ifstream::in);
   if (ifs.fail()) {
@@ -42,7 +49,7 @@ int Star::read_stars_from_file(const char *file_path, Star stars[STAR_COUNT]) {
 
     } else {
       int type = c - '0';
-      if (type < 0 || type >= STAR_TYPE_COUNT) {
+      if (type < 1 || type > STAR_TYPE_COUNT) {
         cerr << "Wrong format! Unexpected type" << endl;
         rc = 1;
         goto error;
@@ -61,6 +68,12 @@ int Star::read_stars_from_file(const char *file_path, Star stars[STAR_COUNT]) {
     goto error;
   }
 
+  for (int y = 0; y < LENGTH; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      matrix[x][y] = stars[x + y * WIDTH];
+    }
+  }
+
 done:
   if (ifs.is_open()) {
     ifs.close();
@@ -68,14 +81,6 @@ done:
   return rc;
 error:
   goto done;
-}
-
-void Star::init_matrix(Star stars[STAR_COUNT], Star star_matrix[WIDTH][LENGTH]) {
-  for (int y = 0; y < LENGTH; ++y) {
-    for (int x = 0; x < WIDTH; ++x) {
-      star_matrix[x][y] = stars[x + y * WIDTH];
-    }
-  }
 }
 
 void Star::print_matrix(const Star star_matrix[WIDTH][LENGTH]) {
@@ -101,3 +106,66 @@ bool operator != (const Star &l, const Star &r) {
   return !operator==(l, r);
 }
 
+
+
+Mini_matrix::Mini_matrix(const Star matrix[WIDTH][LENGTH], short score) {
+  int i = 0;
+  int x = 0;
+  int y = 0;
+  uint offset = 0;
+  ullong *buf_bits = (ullong*) _buf;
+
+  memset(_buf, 0, sizeof(_buf));
+  for (int i = 1; i <= STAR_COUNT; ++i) {
+    ullong t = matrix[x][y].type();
+    *buf_bits |= (t << offset);
+
+    y += 1;
+    if (y == LENGTH) {
+      y = 0;
+      x += 1;
+    }
+
+    offset += TYPE_BITS;
+    if (i % 8 == 0) {
+      offset = 0;
+      buf_bits = (ullong*) (_buf + ((i / 8) * 3));
+    }
+  }
+
+  _score = score;
+}
+
+Mini_matrix::Mini_matrix(const Mini_matrix& m) {
+  memcpy(_buf, m._buf, sizeof(_buf));
+  _score = m._score;
+}
+
+void Mini_matrix::print() const {
+  cout << "score: " << _score << endl;
+  for (int i = 0; i < MINI_MTRX_SIZE; ++i) {
+    byte b = _buf[i];
+    for (int j = 0; j < BYTE_BITS; ++j) {
+      cout << ((b & (1 << (BYTE_BITS - 1 - j))) ? '1' : '0');
+    }
+    cout << ' ';
+    if (i % 8 == 7) {
+      cout << endl;
+    }
+  }
+  cout << endl;
+}
+
+bool Mini_matrix::operator <(const Mini_matrix &m) const {
+  return _score < m._score || memcmp(_buf, m._buf, sizeof(_buf)) < 0;
+}
+
+uint Mini_matrix::hash(uint max) const {
+  static const uint ONE_OF_FIVE = DIVIDE_AND_CEIL(MINI_MTRX_SIZE, 5);
+
+  ullong hash_code = _score;
+  hash_code += *((ullong *) (_buf + ONE_OF_FIVE));
+  hash_code += *((ullong *) (_buf + 3 * ONE_OF_FIVE));
+  hash_code %= max;
+  return hash_code;
+}

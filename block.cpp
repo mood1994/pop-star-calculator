@@ -2,7 +2,7 @@
 
 using namespace std;
 
-set<Block> Block::global_blocks;
+Block_hash_set Block::global_blocks;
 
 void Block::print() const {
   cout << "id: " << _id << "\t";
@@ -88,13 +88,17 @@ void update_block_id(const Block &block, Star matrix[WIDTH][LENGTH]) {
   }
 }
 
-void Block::init_blocks(Star matrix[WIDTH][LENGTH], 
-                        map<int, const Block*> &blocks) {
+void Block::org_blocks(Star matrix[WIDTH][LENGTH], 
+                       int min_x, int max_x,
+                       int min_y, int max_y,
+                       map<int, const Block*> &blocks) {
   pair<set<Block>::iterator, bool> ret;
-  for (short y = 0; y < LENGTH; ++y) {
-    for (short x = 0; x < WIDTH; ++x) {
-      if (matrix[x][y] != Star::INVALID &&
-          INVALID_BLOCK_ID == matrix[x][y].block_id()) {
+  for (int x = min_x; x <= max_x; ++x) {
+    for (int y = max_y; y >= min_y; --y) {
+      if (matrix[x][y] == Star::INVALID) {
+        break;
+      }
+      if (INVALID_BLOCK_ID == matrix[x][y].block_id()) {
         Block new_block;
         new_block.set_type(matrix[x][y].type());
         new_block.set_id(Block::global_blocks.size());
@@ -114,7 +118,7 @@ void Block::init_blocks(Star matrix[WIDTH][LENGTH],
   }
 }
 
-void Block::get_bound(int &min_x, int &max_x) const {
+void Block::get_bound_x(int &min_x, int &max_x) const {
   min_x = WIDTH - 1;
   max_x = 0;
   for (int i = 0; i < _members.size(); ++i) {
@@ -126,4 +130,29 @@ void Block::get_bound(int &min_x, int &max_x) const {
       max_x = x;
     }
   }
+}
+
+void Block::get_bound_y(int &min_y, int &max_y) const {
+  min_y = LENGTH - 1;
+  max_y = 0;
+  for (int i = 0; i < _members.size(); ++i) {
+    int y = _members[i].y;
+    if (min_y > y) {
+      min_y = y;
+    }
+    if (max_y < y) {
+      max_y = y;
+    }
+  }
+}
+
+uint Block::hash(uint max) const {
+  uint hash_code = 0;
+  hash_code |= (_type << (2 * BYTE_BITS));
+  uint no_0 = _members[0].y * WIDTH + _members[0].x;
+  hash_code |= (no_0 << (1 * BYTE_BITS));
+  uint no_1 = _members[1].y * WIDTH + _members[1].x;
+  hash_code |= no_1;
+  hash_code %= max;
+  return hash_code;
 }

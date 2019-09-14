@@ -3,19 +3,17 @@
 
 #include <iostream>
 #include "def.hpp"
+#include "util.hpp"
 
 class Star {
  public:
   static const Star INVALID;
 
-  static void init_stars(Star stars[STAR_COUNT]);
+  static void make_random_matrix(Star matrix[WIDTH][LENGTH]);
 
-  static int read_stars_from_file(const char *file_path,
-                                  Star stars[STAR_COUNT]);
+  static int read_matrix_from_file(const char *file_path, 
+                                   Star matrix[WIDTH][LENGTH]);
   
-  static void init_matrix(Star stars[STAR_COUNT], 
-                          Star star_matrix[WIDTH][LENGTH]);
-
   static void print_matrix(const Star star_matrix[WIDTH][LENGTH]);
 
  public:
@@ -50,5 +48,30 @@ class Star {
 bool operator == (const Star &l, const Star &r);
 
 bool operator != (const Star &l, const Star &r);
+
+
+
+class Mini_matrix {
+ private:
+  static const uint MINI_MTRX_SIZE = DIVIDE_AND_CEIL(TYPE_BITS * STAR_COUNT, BYTE_BITS);
+
+ public:
+  Mini_matrix(const Star matrix[WIDTH][LENGTH], short score);
+
+  Mini_matrix(const Mini_matrix& m);
+
+  void print() const;
+
+  bool operator <(const Mini_matrix &m) const;
+
+  uint hash(uint max) const;
+
+ private:
+  byte _buf[MINI_MTRX_SIZE];
+  short _score;
+};
+
+typedef std::pair<std::set<Mini_matrix>::iterator, bool> Mtrx_set_ret;
+typedef Hash_set<Mini_matrix, Mtrx_set_ret, 1024> Mtrx_hash_set;
 
 #endif // STAR_HPP

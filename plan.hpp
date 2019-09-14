@@ -15,7 +15,9 @@ class Plan {
  public:
   Plan(const Star star_matrix[WIDTH][LENGTH]);
 
-  void next_step(std::set<Plan> &further_plans) const;
+  Plan(const Plan& p);
+
+  void next_step(std::vector<Plan> &further_plans, Mtrx_hash_set &mtrx_set) const;
 
   void print() const;
 
@@ -23,7 +25,9 @@ class Plan {
 
  private:
   Plan() {}
+
   void pop(const Block &block2pop, Plan &result) const;
+
   void finish();
 
  private:
