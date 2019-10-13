@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     if (i == thd_num - 1) {
       end = first_plans.size();
     }
-    
+
     vector<Plan> thd_plans;
     for (int j = start; j < end; ++j) {
       thd_plans.push_back(first_plans[j]);
@@ -103,8 +103,14 @@ int main(int argc, char **argv) {
       if (curr->best().score() > Plan::g_best.score()) {
         Plan::g_best = curr->best();
       }
+      // TODO: it's unbalance
+      /*cout << "TID: " << curr->tid() << endl;
+      curr->statis().print();
+      cout << endl;*/
       total = total + curr->statis();
     }
+    cout << "Mini_matrix.size: " << Mini_matrix::g_hash_set.size() << endl;
+    cout << "Block matrix size: " << Block::g_hash_set.size() << endl;
     Mini_matrix::g_hash_set.clear();
 
     for (it = units.begin(); it != units.end();) {

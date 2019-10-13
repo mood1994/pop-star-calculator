@@ -14,8 +14,8 @@ void* Calc_unit::thread_run(void *p) {
 
   unit._statis.reset();
   for (int i = 0; i < unit._curr_plans->size(); ++i) {
-    (*unit._curr_plans)[i].next_step(*unit._further_plans, 
-                                     unit._best_plan, 
+    (*unit._curr_plans)[i].next_step(*unit._further_plans,
+                                     unit._best_plan,
                                      unit._statis);
   }
 

@@ -21,6 +21,8 @@ class Calc_unit {
 
   const Plan& best() const { return _best_plan; }
 
+  llong tid() const { return (llong) _tid; }
+
   Statis statis() const { return _statis; }
 
  private:

@@ -43,8 +43,8 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
   // 2. move up_star down
   down_star = up_star;
   up_star = Star::INVALID;
-  // 3. disband new neighbor block to merge 
-  int my_type = down_star.type(); 
+  // 3. disband new neighbor block to merge
+  int my_type = down_star.type();
   // Note: top must be INVALID. No need to check.
   if (x > 0) {
     Star &left = matrix[x - 1][down_y]; 
@@ -133,7 +133,7 @@ Plan::Plan(const Plan& p) {
   _score = p._score;
 }
 
-void Plan::next_step(vector<Plan> &further_plans, 
+void Plan::next_step(vector<Plan> &further_plans,
                      Plan &best, Statis &stat) const {
   map<int, const Block*>::const_iterator it;
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
