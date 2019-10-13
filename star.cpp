@@ -9,6 +9,8 @@ using namespace std;
 
 const Star Star::INVALID;
 
+Mtrx_hash_set Mini_matrix::g_hash_set;
+
 void Star::make_random_matrix(Star matrix[WIDTH][LENGTH]) {
   int x = 0;
   int y = 0;

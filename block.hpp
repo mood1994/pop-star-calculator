@@ -36,7 +36,7 @@ typedef Hash_set<Block, Block_set_ret, 128> Block_hash_set;
 
 class Block {
  public:
-  static Block_hash_set global_blocks;
+  static Block_hash_set g_hash_set;
   static void org_blocks(Star star_matrix[WIDTH][LENGTH], 
                          int min_x, int max_x,
                          int min_y, int max_y,

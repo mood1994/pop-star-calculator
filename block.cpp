@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Block_hash_set Block::global_blocks;
+Block_hash_set Block::g_hash_set;
 
 void Block::print() const {
   cout << "id: " << _id << "\t";
@@ -101,10 +101,10 @@ void Block::org_blocks(Star matrix[WIDTH][LENGTH],
       if (INVALID_BLOCK_ID == matrix[x][y].block_id()) {
         Block new_block;
         new_block.set_type(matrix[x][y].type());
-        new_block.set_id(Block::global_blocks.size());
+        new_block.set_id(Block::g_hash_set.size());
         add_neighbor_star_to_block(matrix, x, y, new_block);
         if (new_block._members.size() >= 2) {
-          ret = Block::global_blocks.insert(new_block);
+          ret = Block::g_hash_set.insert(new_block);
           const Block *p = &(*ret.first);
           if (!ret.second) {
             update_block_id(*p, matrix);

@@ -1,6 +1,5 @@
 #include "plan.hpp"
 #include <iostream>
-#include "monitor.hpp"
 
 using namespace std;
 
@@ -44,8 +43,8 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
   // 2. move up_star down
   down_star = up_star;
   up_star = Star::INVALID;
-  // 3. disband new neighbor block to merge
-  int my_type = down_star.type();
+  // 3. disband new neighbor block to merge 
+  int my_type = down_star.type(); 
   // Note: top must be INVALID. No need to check.
   if (x > 0) {
     Star &left = matrix[x - 1][down_y]; 
@@ -76,7 +75,6 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
   }
 }
 
-// TODO: reorgnize block in this function, don't use init block any more.
 void remove_column_and_disband_block(Star matrix[WIDTH][LENGTH], 
                                      int x, 
                                      map<int, const Block*> &block_map) {
@@ -111,7 +109,7 @@ void remove_column_and_disband_block(Star matrix[WIDTH][LENGTH],
   }
 }
 
-Plan Plan::best_plan;
+Plan Plan::g_best;
 
 Plan::Plan(const Star star_matrix[WIDTH][LENGTH]) {
   for (int i = 0; i < WIDTH; ++i) {
@@ -125,8 +123,8 @@ Plan::Plan(const Star star_matrix[WIDTH][LENGTH]) {
 }
 
 Plan::Plan(const Plan& p) {
-  for (int y = 0; y < LENGTH; ++y) {
-    for (int x = 0; x < WIDTH; ++x) {
+  for (int x = 0; x < WIDTH; ++x) {
+    for (int y = 0; y < LENGTH; ++y) {
       _matrix[x][y] = p._matrix[x][y];
     }
   }
@@ -135,16 +133,17 @@ Plan::Plan(const Plan& p) {
   _score = p._score;
 }
 
-void Plan::next_step(vector<Plan> &further_plans, Mtrx_hash_set &mtrx_set) const {
+void Plan::next_step(vector<Plan> &further_plans, 
+                     Plan &best, Statis &stat) const {
   map<int, const Block*>::const_iterator it;
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
-    mon.inc_total_plan();
+    ++stat.total_plan_cnt;
     if (!_walk_path.empty()) {
       const Block& last_block = *_walk_path[_walk_path.size() - 1];
       if (is_block_independent(last_block, *(it->second)) && 
           it->second->id() < last_block.id()) {
-        mon.inc_discard_plan();
-        mon.inc_quick_discard();
+        ++stat.discard_plan_cnt;
+        ++stat.quick_discard;
         continue;
       }
     }
@@ -153,18 +152,18 @@ void Plan::next_step(vector<Plan> &further_plans, Mtrx_hash_set &mtrx_set) const
     DEBUG_DO(res.print());
     if (!res._block_map.empty()) {
       Mini_matrix mini(res._matrix, res._score);
-      Mtrx_set_ret ret = mtrx_set.insert(mini);
+      Mtrx_set_ret ret = Mini_matrix::g_hash_set.insert(mini);
       if (ret.second) {
         further_plans.push_back(res);
       } else {
-        mon.inc_discard_plan();
+        ++stat.discard_plan_cnt;
         DEBUG_DO(cout << "Plan was discarded for duplication." << endl);
       }
     } else {
-      mon.inc_finish_plan();
+      ++stat.finish_plan_cnt;
       res.finish();
-      if (res._score > best_plan._score) {
-        best_plan = res;
+      if (res._score > best._score) {
+        best = res;
         DEBUG_DO(cout << "New best score: " << res._score << endl);
       }
     }

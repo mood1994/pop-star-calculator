@@ -1,15 +1,20 @@
 #include <iostream>
 #include <vector>
-#include <set>
+#include <stdlib.h>
+#include <time.h>
+#include <list>
 
 #include "star.hpp"
 #include "def.hpp"
 #include "plan.hpp"
-#include "monitor.hpp"
+#include "statis.hpp" 
+#include "calc_unit.hpp"
+
 using namespace std;
 
-void get_options(int argc, char **argv, const char **file, bool &debug) {
-  *file = NULL; debug = false; for (int i = 1; i < argc; ++i) {
+void get_options(int argc, char **argv, const char **file, bool &debug, 
+                 int &thd_num) {
+  for (int i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "--debug") == 0 ||
         strcmp(argv[i], "-d") == 0) {
       debug = true;
@@ -22,6 +27,13 @@ void get_options(int argc, char **argv, const char **file, bool &debug) {
         i += 1;
       }
     }
+    if (strcmp(argv[i], "--thread") == 0 ||
+        strcmp(argv[i], "-t") == 0) {
+      if (i + 1 < argc) {
+        thd_num = atoi(argv[i + 1]);
+        i += 1;
+      }
+    }
   }
 }
 
@@ -30,9 +42,8 @@ int main(int argc, char **argv) {
   
   const char *file_path = NULL;
   bool debug = false;
-  get_options(argc, argv, &file_path, debug);
-
-  mon.set_debug(debug);
+  int thd_num = 1;
+  get_options(argc, argv, &file_path, debug, thd_num);
 
   if (file_path) {
     cout << "Using file matrix" << endl;
@@ -49,36 +60,72 @@ int main(int argc, char **argv) {
   DEBUG_DO(cout << "Initializing root" << endl);
   Plan root(star_matrix);
   DEBUG_DO(root.print());
-  Plan::best_plan = root;
+  Plan::g_best = root;
+  Statis total;
 
-  vector<Plan> plan_container_1;
-  vector<Plan> plan_container_2;
-  vector<Plan> *curr_plans = &plan_container_1;
-  vector<Plan> *further_plans = &plan_container_2;
-  vector<Plan> *tmp_ptr = NULL;
-  Mtrx_hash_set mtrx_set;
+  vector<Plan> first_plans;
+  root.next_step(first_plans, Plan::g_best, total);
+  Mini_matrix::g_hash_set.clear();
+  total.reset();
 
-  int round = 0;
-  root.next_step(*curr_plans, mtrx_set);
-  mtrx_set.clear();
-  while (!curr_plans->empty()) {
-    mon.reset();
-    for (int i = 0; i < curr_plans->size(); ++i) {
-      (*curr_plans)[i].next_step(*further_plans, mtrx_set);
+  list<Calc_unit *> units;
+  int plans_per_thd = first_plans.size() / thd_num;
+  for (int i = 0; i < thd_num; ++i) {
+    int start = i * plans_per_thd;
+    int end = start + plans_per_thd;
+    if (i == thd_num - 1) {
+      end = first_plans.size();
     }
-    curr_plans->clear();
-    mtrx_set.clear();
+    
+    vector<Plan> thd_plans;
+    for (int j = start; j < end; ++j) {
+      thd_plans.push_back(first_plans[j]);
+    }
 
-    tmp_ptr = curr_plans;
-    curr_plans = further_plans;
-    further_plans = tmp_ptr;
+    Calc_unit *unit = new Calc_unit(thd_plans);
+    units.push_back(unit);
+  }
 
-    cout << "** ROUND: " << ++round << " **" << endl;
-    mon.print();
+  list<Calc_unit *>::iterator it;
+  uint round = 1;
+  time_t start_time = time(NULL);
+  while (units.size() > 0) {
+    for (it = units.begin(); it != units.end(); ++it) {
+      (*it)->start_round();
+    }
+    for (it = units.begin(); it != units.end(); ++it) {
+      (*it)->join_round();
+    }
+
+    total.reset();
+    for (it = units.begin(); it != units.end(); ++it) {
+      Calc_unit *curr = *it;
+      if (curr->best().score() > Plan::g_best.score()) {
+        Plan::g_best = curr->best();
+      }
+      total = total + curr->statis();
+    }
+    Mini_matrix::g_hash_set.clear();
+
+    for (it = units.begin(); it != units.end();) {
+      if (!(*it)->has_next()) {
+        delete *it;
+        units.erase(it);
+      } else {
+        ++it;
+      }
+    }
+
+    time_t curr_time = time(NULL);
+    cout << "** ROUND: " << round++ << " **" << endl;
+    total.print();
+    cout << "cost: " << difftime(curr_time, start_time) << " (s)" << endl;
+    cout << endl;
   }
 
   cout << endl << "BEST: " << endl;
-  Plan::best_plan.print();
+  Plan::g_best.print();
+  // TODO: replay the path
 
   return 0;
 }

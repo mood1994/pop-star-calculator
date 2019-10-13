@@ -51,9 +51,14 @@ bool operator != (const Star &l, const Star &r);
 
 
 
+class Mini_matrix;
+typedef std::pair<std::set<Mini_matrix>::iterator, bool> Mtrx_set_ret;
+typedef Hash_set<Mini_matrix, Mtrx_set_ret, 1024> Mtrx_hash_set;
+
 class Mini_matrix {
- private:
+ public:
   static const uint MINI_MTRX_SIZE = DIVIDE_AND_CEIL(TYPE_BITS * STAR_COUNT, BYTE_BITS);
+  static Mtrx_hash_set g_hash_set;
 
  public:
   Mini_matrix(const Star matrix[WIDTH][LENGTH], short score);
@@ -70,8 +75,5 @@ class Mini_matrix {
   byte _buf[MINI_MTRX_SIZE];
   short _score;
 };
-
-typedef std::pair<std::set<Mini_matrix>::iterator, bool> Mtrx_set_ret;
-typedef Hash_set<Mini_matrix, Mtrx_set_ret, 1024> Mtrx_hash_set;
 
 #endif // STAR_HPP

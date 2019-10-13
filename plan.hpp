@@ -2,30 +2,33 @@
 #define PLAN_HPP
 
 #include <vector>
-#include <set>
 #include <map>
 #include "star.hpp"
 #include "block.hpp"
 #include "def.hpp"
+#include "statis.hpp"
 
 class Plan {
  public:
-  static Plan best_plan;
+  static Plan g_best;
 
  public:
+  Plan() {}
+
   Plan(const Star star_matrix[WIDTH][LENGTH]);
 
   Plan(const Plan& p);
 
-  void next_step(std::vector<Plan> &further_plans, Mtrx_hash_set &mtrx_set) const;
+  void next_step(std::vector<Plan> &further_plans, 
+                 Plan &best, Statis &stat) const;
+
+  int score() const { return _score; }
 
   void print() const;
 
   bool operator <(const Plan &p) const;
 
  private:
-  Plan() {}
-
   void pop(const Block &block2pop, Plan &result) const;
 
   void finish();
