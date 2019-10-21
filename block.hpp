@@ -40,18 +40,18 @@ class Block {
   static void org_blocks(Star star_matrix[WIDTH][LENGTH], 
                          int min_x, int max_x,
                          int min_y, int max_y,
-                         std::map<int, const Block*> &blocks);
+                         std::map<BID, const Block*> &blocks);
 
  public:
   Block(): _id(INVALID_BLOCK_ID), _type(INVALID_STAR_TYPE) {}
 
-  int id() const { return _id; }
+  BID id() const { return _id; }
 
-  void set_id(int id) { _id = id; }
+  void set_id(BID id) { _id = id; }
 
-  short type() const { return _type; }
+  STYPE type() const { return _type; }
 
-  void set_type(short t) { _type = t; }
+  void set_type(STYPE t) { _type = t; }
 
   void add(const Coord &c) {
     _members.push_back(c);
@@ -72,8 +72,8 @@ class Block {
   uint hash(uint max) const;
 
  private:
-  int _id;
-  short _type;
+  BID _id;
+  STYPE _type;
   std::vector<Coord> _members;
 };
 

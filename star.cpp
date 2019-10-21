@@ -16,7 +16,7 @@ void Star::make_random_matrix(Star matrix[WIDTH][LENGTH]) {
   int y = 0;
   srand((unsigned)time(NULL));
   for (int i = 0; i < STAR_COUNT; ++i) {
-    short rand_type = (rand() % STAR_TYPE_COUNT) + 1;
+    STYPE rand_type = (rand() % STAR_TYPE_COUNT) + 1;
     matrix[x][y].set_type(rand_type);
     matrix[x][y].set_id(i);
     y += 1;
@@ -50,7 +50,7 @@ int Star::read_matrix_from_file(const char *file_path, Star matrix[WIDTH][LENGTH
       }
 
     } else {
-      int type = c - '0';
+      STYPE type = c - '0';
       if (type < 1 || type > STAR_TYPE_COUNT) {
         cerr << "Wrong format! Unexpected type" << endl;
         rc = 1;

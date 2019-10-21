@@ -28,13 +28,13 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
                                       int x,
                                       int up_y,
                                       int down_y,
-                                      map<int, const Block*> &block_map) {
+                                      map<BID, const Block*> &block_map) {
   // Note: down_star always be INVALID.
   Star &up_star = matrix[x][up_y];
   Star &down_star = matrix[x][down_y];
   // 1. disband old block
-  int disband_id = up_star.block_id();
-  map<int, const Block*>::const_iterator it;
+  BID disband_id = up_star.block_id();
+  map<BID, const Block*>::const_iterator it;
   if (disband_id != INVALID_BLOCK_ID) {
     it = block_map.find(disband_id);
     it->second->disband(matrix);
@@ -44,7 +44,7 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
   down_star = up_star;
   up_star = Star::INVALID;
   // 3. disband new neighbor block to merge
-  int my_type = down_star.type();
+  STYPE my_type = down_star.type();
   // Note: top must be INVALID. No need to check.
   if (x > 0) {
     Star &left = matrix[x - 1][down_y]; 
@@ -77,12 +77,12 @@ void move_down_star_and_disband_block(Star matrix[WIDTH][LENGTH],
 
 void remove_column_and_disband_block(Star matrix[WIDTH][LENGTH], 
                                      int x, 
-                                     map<int, const Block*> &block_map) {
+                                     map<BID, const Block*> &block_map) {
   // disband blocks of neighbor columns.
-  map<int, const Block*>::const_iterator it;
+  map<BID, const Block*>::const_iterator it;
   if (x > 0) {
     for (int y = 0; y < LENGTH; ++y) {
-      int left_id = matrix[x - 1][y].block_id();
+      BID left_id = matrix[x - 1][y].block_id();
       if (left_id != INVALID_BLOCK_ID) {
         it = block_map.find(left_id);
         it->second->disband(matrix);
@@ -93,7 +93,7 @@ void remove_column_and_disband_block(Star matrix[WIDTH][LENGTH],
   // move all right columns left.
   for (int i = x + 1; i < WIDTH; ++i) {
     for (int y = 0; y < LENGTH; ++y) {
-      int right_id = matrix[i][y].block_id();
+      BID right_id = matrix[i][y].block_id();
       if (right_id != INVALID_BLOCK_ID) {
         it = block_map.find(right_id);
         it->second->disband(matrix);
@@ -135,7 +135,7 @@ Plan::Plan(const Plan& p) {
 
 void Plan::next_step(vector<Plan> &further_plans,
                      Plan &best, Statis &stat) const {
-  map<int, const Block*>::const_iterator it;
+  map<BID, const Block*>::const_iterator it;
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
     ++stat.total_plan_cnt;
     if (!_walk_path.empty()) {
@@ -183,7 +183,7 @@ void Plan::print() const {
   cout << endl;
 
   cout << "BLOCKS: " << endl;
-  map<int, const Block*>::const_iterator it;
+  map<BID, const Block*>::const_iterator it;
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
     it->second->print();
   }
@@ -201,13 +201,13 @@ bool Plan::operator <(const Plan &p) const {
     return false;
   }
 
-  map<int, const Block*>::const_iterator it;
-  map<int, const Block*>::const_iterator it2;
+  map<BID, const Block*>::const_iterator it;
+  map<BID, const Block*>::const_iterator it2;
   for (it = _block_map.begin(), it2 = p._block_map.begin(); 
        it != _block_map.end(); 
        ++it, ++it2) {
-    int id = it->second->id();
-    int id2 = it2->second->id();
+    BID id = it->second->id();
+    BID id2 = it2->second->id();
     if (id == id2) {
       continue;
     } else if (id < id2) {

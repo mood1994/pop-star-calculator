@@ -91,7 +91,7 @@ void update_block_id(const Block &block, Star matrix[WIDTH][LENGTH]) {
 void Block::org_blocks(Star matrix[WIDTH][LENGTH], 
                        int min_x, int max_x,
                        int min_y, int max_y,
-                       map<int, const Block*> &blocks) {
+                       map<BID, const Block*> &blocks) {
   pair<set<Block>::iterator, bool> ret;
   for (int x = min_x; x <= max_x; ++x) {
     for (int y = max_y; y >= min_y; --y) {
@@ -110,7 +110,7 @@ void Block::org_blocks(Star matrix[WIDTH][LENGTH],
           if (!ret.second) {
             update_block_id(*p, matrix);
           }
-          blocks.insert(pair<int, const Block*>(p->id(), p));
+          blocks.insert(pair<BID, const Block*>(p->id(), p));
         } else {
           new_block.disband(matrix);
         }
