@@ -17,7 +17,7 @@ class Calc_unit {
 
   void join_round();
 
-  bool has_next() const { return !_curr_plans->empty(); }
+  bool has_next() const { return _old_tracks->size() > 1;}
 
   const Plan& best() const { return _best_plan; }
 
@@ -29,10 +29,11 @@ class Calc_unit {
   pthread_t _tid;
   Plan _best_plan;
   Statis _statis;
-  std::vector<Plan> _plans1;
-  std::vector<Plan> _plans2;
-  std::vector<Plan> *_curr_plans;
-  std::vector<Plan> *_further_plans;
+  std::vector<BID> _tracks1;
+  std::vector<BID> _tracks2;
+  std::vector<BID> *_old_tracks;
+  std::vector<BID> *_new_tracks;
+  Track_replayer _replayer;
 };
 
 #endif // CALC_UNIT_HPP

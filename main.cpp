@@ -44,15 +44,16 @@ int main(int argc, char **argv) {
   bool debug = false;
   int thd_num = 1;
   get_options(argc, argv, &file_path, debug, thd_num);
+  cout << "file  : " << file_path << endl;
+  cout << "debug : " << debug << endl;
+  cout << "thread: " << thd_num << endl << endl;
 
   if (file_path) {
-    cout << "Using file matrix" << endl;
     if (Star::read_matrix_from_file(file_path, star_matrix)) {
       cerr << "Fail to read stars" << endl;
       return 1;
     }
   } else {
-    cout << "Using random matrix" << endl;
     Star::make_random_matrix(star_matrix);
   }
   Star::print_matrix(star_matrix);
@@ -61,6 +62,7 @@ int main(int argc, char **argv) {
   Plan root(star_matrix);
   DEBUG_DO(root.print());
   Plan::g_best = root;
+  Track_replayer::g_root_plan = root;
   Statis total;
 
   vector<Plan> first_plans;
@@ -97,21 +99,25 @@ int main(int argc, char **argv) {
       (*it)->join_round();
     }
 
-    total.reset();
     for (it = units.begin(); it != units.end(); ++it) {
       Calc_unit *curr = *it;
       if (curr->best().score() > Plan::g_best.score()) {
         Plan::g_best = curr->best();
       }
       // TODO: it's unbalance
-      /*cout << "TID: " << curr->tid() << endl;
-      curr->statis().print();
-      cout << endl;*/
+      // cout << "TID: " << curr->tid() << endl;
+      // curr->statis().print();
+      // cout << endl;
       total = total + curr->statis();
     }
+
+    time_t curr_time = time(NULL);
+    cout << "** ROUND: " << round++ << " **" << endl;
+    total.print();
+    cout << "cost: " << difftime(curr_time, start_time) << " (s)" << endl;
     cout << "Mini_matrix.size: " << Mini_matrix::g_hash_set.size() << endl;
     cout << "Block matrix size: " << Block::g_hash_set.size() << endl;
-    Mini_matrix::g_hash_set.clear();
+    cout << endl;
 
     for (it = units.begin(); it != units.end();) {
       if (!(*it)->has_next()) {
@@ -121,12 +127,8 @@ int main(int argc, char **argv) {
         ++it;
       }
     }
-
-    time_t curr_time = time(NULL);
-    cout << "** ROUND: " << round++ << " **" << endl;
-    total.print();
-    cout << "cost: " << difftime(curr_time, start_time) << " (s)" << endl;
-    cout << endl;
+    total.reset();
+    Mini_matrix::g_hash_set.clear();
   }
 
   cout << endl << "BEST: " << endl;

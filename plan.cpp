@@ -129,17 +129,18 @@ Plan::Plan(const Plan& p) {
     }
   }
   _block_map = p._block_map;
-  _walk_path = p._walk_path;
+  _track = p._track;
   _score = p._score;
 }
 
 void Plan::next_step(vector<Plan> &further_plans,
                      Plan &best, Statis &stat) const {
+  DEBUG_DO(cout << "next_step" << endl);
   map<BID, const Block*>::const_iterator it;
   for (it = _block_map.begin(); it != _block_map.end(); ++it) {
     ++stat.total_plan_cnt;
-    if (!_walk_path.empty()) {
-      const Block& last_block = *_walk_path[_walk_path.size() - 1];
+    if (!_track.empty()) {
+      const Block& last_block = *_track[_track.size() - 1];
       if (is_block_independent(last_block, *(it->second)) && 
           it->second->id() < last_block.id()) {
         ++stat.discard_plan_cnt;
@@ -177,8 +178,8 @@ void Plan::print() const {
 
   cout << "SCORE: " << _score << endl;
   cout << "WALK_PATH: ";
-  for (int i = 0; i < _walk_path.size(); ++i) {
-    cout << _walk_path[i]->id() << " ";
+  for (int i = 0; i < _track.size(); ++i) {
+    cout << _track[i]->id() << " ";
   }
   cout << endl;
 
@@ -220,9 +221,9 @@ bool Plan::operator <(const Plan &p) const {
 }
 
 void Plan::pop(const Block &block2pop, Plan& result) const {
-  // Update _walk_path
-  result._walk_path = _walk_path;
-  result._walk_path.push_back(&block2pop);
+  // Update _track
+  result._track = _track;
+  result._track.push_back(&block2pop);
 
   // Remove stars from _matrix
   memcpy(result._matrix, _matrix, sizeof(_matrix));
@@ -315,3 +316,54 @@ void Plan::finish() {
   DEBUG_DO(cout << "Plan finish. Get reward " << reward << endl);
   _score += reward;
 }
+
+Plan Track_replayer::g_root_plan;
+
+Track_replayer::~Track_replayer() {
+  for (int i = 0; i < _last_result.size(); ++i) {
+    delete _last_result[i];
+  }
+}
+
+const Plan *Track_replayer::replay(const vector<BID> &track) {
+  const Plan *result = &g_root_plan;
+  for (int i = 0; i < track.size(); ++i) {
+    if (i < _last_track.size() && track[i] == _last_track[i]) {
+      result = _last_result[i];
+      continue;
+    }
+
+    if (i >= _last_track.size()) {
+      _last_track.push_back(track[i]);
+    } else {
+      _last_track[i] = track[i];
+    }
+
+    for (int j = i + 1; j < _last_track.size(); ++j) {
+      _last_track[j] = INVALID_BLOCK_ID;
+    }
+
+    if (i >= _last_result.size()) {
+      Plan *new_plan = new Plan();
+      _last_result.push_back(new_plan);
+    }
+
+    map<BID, const Block*>::const_iterator it;
+    it = result->_block_map.find(track[i]);
+    if (it == result->_block_map.end()) {
+      cout << "not found block " << track[i] << endl;
+      map<BID, const Block*>::const_iterator it2;
+      for (it2 = result->_block_map.begin();
+           it2 != result->_block_map.end();
+           ++it2) {
+        it2->second->print();
+      }
+      throw "assert";
+    }
+    const Block *b = it->second;
+    result->pop(*b, *_last_result[i]);
+    result = _last_result[i];
+  }
+  return result;
+}
+

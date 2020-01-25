@@ -20,11 +20,19 @@ struct Coord {
   }
 
   bool operator <(const Coord &c) const {
-    return x < c.x || y < c.y;
+    if (x != c.x) {
+      return x < c.x;
+    } else {
+      return y < c.y;
+    }
   }
 
   bool operator >(const Coord &c) const {
-    return x > c.x || y > c.y;
+    if (x != c.x) {
+      return x > c.x;
+    } else {
+      return y > c.y;
+    }
   }
 };
 
