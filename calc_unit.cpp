@@ -21,6 +21,7 @@ Calc_unit::Calc_unit(const vector<Plan> &root_plans) {
 void* Calc_unit::thread_run(void *p) {
   Calc_unit &unit = *((Calc_unit *) p);
   vector<BID> *tmp_ptr = NULL;
+  thd_id_mgr = new BlockIDMgr();
 
   unit._statis.reset();
   const Plan *curr_plan;
@@ -45,6 +46,7 @@ void* Calc_unit::thread_run(void *p) {
   unit._old_tracks = unit._new_tracks;
   unit._new_tracks = tmp_ptr;
 
+  delete thd_id_mgr;
   return NULL;
 }
 

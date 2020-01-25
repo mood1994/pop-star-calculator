@@ -38,6 +38,33 @@ struct Coord {
 
 
 
+class BlockIDMgr {
+ public:
+  BlockIDMgr() {
+    next();
+  }
+
+  BID current() {
+    return _current_id;
+  }
+
+  BID next() {
+    pthread_mutex_lock(&id_lock);
+    _current_id = g_current_id++;
+    pthread_mutex_unlock(&id_lock);
+    return _current_id;
+  }
+
+ private:
+  static BID g_current_id;
+  static pthread_mutex_t id_lock;
+  BID _current_id;
+};
+
+extern __thread BlockIDMgr* thd_id_mgr;
+
+
+
 class Block;
 typedef std::pair<std::set<Block>::iterator, bool> Block_set_ret;
 typedef Hash_set<Block, Block_set_ret, 128> Block_hash_set;

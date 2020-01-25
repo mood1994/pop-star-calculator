@@ -9,49 +9,20 @@
 #include "plan.hpp"
 #include "statis.hpp" 
 #include "calc_unit.hpp"
+#include "conf.hpp"
 
 using namespace std;
 
-void get_options(int argc, char **argv, const char **file, bool &debug, 
-                 int &thd_num) {
-  for (int i = 1; i < argc; ++i) {
-    if (strcmp(argv[i], "--debug") == 0 ||
-        strcmp(argv[i], "-d") == 0) {
-      debug = true;
-      continue;
-    }
-    if (strcmp(argv[i], "--file") == 0 ||
-        strcmp(argv[i], "-f") == 0) {
-      if (i + 1 < argc) {
-        *file = argv[i + 1];
-        i += 1;
-      }
-    }
-    if (strcmp(argv[i], "--thread") == 0 ||
-        strcmp(argv[i], "-t") == 0) {
-      if (i + 1 < argc) {
-        thd_num = atoi(argv[i + 1]);
-        i += 1;
-      }
-    }
-  }
-}
+Config g_conf;
 
 int main(int argc, char **argv) {
   Star star_matrix[WIDTH][LENGTH];
   
-  const char *file_path = NULL;
-  bool debug = false;
-  int thd_num = 1;
-  get_options(argc, argv, &file_path, debug, thd_num);
-  cout << "file  : " << file_path << endl;
-  cout << "debug : " << debug << endl;
-  cout << "thread: " << thd_num << endl << endl;
+  g_conf.parse_conf(argc, argv);
 
-  if (file_path) {
-    if (Star::read_matrix_from_file(file_path, star_matrix)) {
-      cerr << "Fail to read stars" << endl;
-      return 1;
+  if (g_conf.file) {
+    if (Star::read_matrix_from_file(g_conf.file, star_matrix)) {
+      cerr << "Fail to read stars" << endl; return 1;
     }
   } else {
     Star::make_random_matrix(star_matrix);
@@ -59,6 +30,7 @@ int main(int argc, char **argv) {
   Star::print_matrix(star_matrix);
 
   DEBUG_DO(cout << "Initializing root" << endl);
+  thd_id_mgr = new BlockIDMgr();
   Plan root(star_matrix);
   DEBUG_DO(root.print());
   Plan::g_best = root;
@@ -69,7 +41,9 @@ int main(int argc, char **argv) {
   root.next_step(first_plans, Plan::g_best, total);
   Mini_matrix::g_hash_set.clear();
   total.reset();
+  delete thd_id_mgr;
 
+  int thd_num = g_conf.thd_num;
   list<Calc_unit *> units;
   int plans_per_thd = first_plans.size() / thd_num;
   for (int i = 0; i < thd_num; ++i) {

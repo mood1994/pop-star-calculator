@@ -9,12 +9,7 @@
 
 #define DIVIDE_AND_CEIL(A, B) ((A) + (B) - 1) / (B)
 
-#ifdef DEBUG
-#  define DEBUG_DO(code) code;
-#else
-#  define DEBUG_DO(code) ;
-#endif
-
+#define DEBUG_DO(code) if (g_conf.debug) { code; }
 
 template <class T, class R, int N>
 class Hash_set {

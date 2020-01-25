@@ -3,6 +3,10 @@
 using namespace std;
 
 Block_hash_set Block::g_hash_set;
+BID BlockIDMgr::g_current_id = 1;
+pthread_mutex_t BlockIDMgr::id_lock;
+
+__thread BlockIDMgr* thd_id_mgr = NULL;
 
 void Block::print() const {
   cout << "id: " << _id << "\t";
@@ -101,14 +105,15 @@ void Block::org_blocks(Star matrix[WIDTH][LENGTH],
       if (INVALID_BLOCK_ID == matrix[x][y].block_id()) {
         Block new_block;
         new_block.set_type(matrix[x][y].type());
-        // TODO: wrong id on multi-thread model.
-        new_block.set_id(Block::g_hash_set.size());
+        new_block.set_id(thd_id_mgr->current());
         add_neighbor_star_to_block(matrix, x, y, new_block);
         if (new_block._members.size() >= 2) {
           ret = Block::g_hash_set.insert(new_block);
           const Block *p = &(*ret.first);
           if (!ret.second) {
             update_block_id(*p, matrix);
+          } else {
+            thd_id_mgr->next();
           }
           blocks.insert(pair<BID, const Block*>(p->id(), p));
         } else {

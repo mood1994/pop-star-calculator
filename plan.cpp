@@ -1,4 +1,5 @@
 #include "plan.hpp"
+#include "conf.hpp"
 #include <iostream>
 
 using namespace std;
